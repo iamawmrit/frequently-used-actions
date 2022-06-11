@@ -1,0 +1,19 @@
+deploy:
+  name: Deploy App
+  # needs: [ build ]
+  if: github.event_name != 'pull_request'
+  runs-on: ubuntu-latest
+  steps:
+    - name: Deploy using ssh
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.VM_IP }}
+        username: ${{ secrets.VM_USER }}
+        password: ${{ secrets.VM_KEY }}
+        port: ${{ secrets.VM_PORT }}
+        script: |
+          cd /var/www/html/backend
+          source .venv/bin/activate
+          git pull origin main
+          pip install -r requirements.txt
+          sudo service apache2 restart
